@@ -32,7 +32,13 @@ def get_gelImage(tags):
 
     if rating == "":  # if rating wasn't specified, set safe one
         rating = ratings["rs"]
-
+    
+    if ((tags[len(tags)-1]).isdigit()):
+        halaman = tags[len(tags)-1]
+        tags.remove(tags[len(tags)-1])
+    else :
+        halaman = '1'
+    
     # make tags suitable for Gelbooru API url
     formatted_tags = "_".join(tags).replace("/","+")
 
@@ -41,7 +47,8 @@ def get_gelImage(tags):
     '''
     api_url = f"https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&limit=50&tags={rating}+{formatted_tags}"
     '''
-    api_url = f"https://danbooru.donmai.us/posts.json?tags={rating}+{formatted_tags}"
+    api_url = f"https://danbooru.donmai.us/posts.json?page={halaman}&tags={rating}+{formatted_tags}"
+    
     response = requests.get(api_url)
 
     # parsing json
