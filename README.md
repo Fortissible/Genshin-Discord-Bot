@@ -1,0 +1,2 @@
+# genshinbotcalc
+Gabut Project
