@@ -89,7 +89,7 @@ async def calcresin(ctx,a,b):
   await ctx.send("Total Resin = "+str(res))
 
 @bot.command()
-async def calcprim(ctx, hr, evnt, blessing):
+async def calcprim(ctx, hr, evnt, blessing=0):
   abs_init = 600
   if (int(blessing)>int(hr)):
       blessing = hr
