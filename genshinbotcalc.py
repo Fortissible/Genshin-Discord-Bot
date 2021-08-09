@@ -1,15 +1,47 @@
 import os
 import discord
+from bs4 import BeautifulSoup
 import requests
 import json
 from discord.ext import commands
 import random
+from tabulate import tabulate
 
 #tkn = os.environ['tok']
 
 bot = commands.Bot(command_prefix='~')
 
-notes = "\n**Command prefix [~]**\n\n**List Command**\n\n~ping      : ngecek ping```yaml\ncontoh : ~ping```~calcdmg   : [attack][critdmg%][talentattack%][elebonus%]```yaml\ncontoh : ~calcdmg 2109 150.7 704.2 45.6```~calcresin : [timestart][timeend]```yaml\ncontoh : ~calcresin 17.44 22.20```~pics       : [chara][*(series)][/tags]```yaml\ncontoh : ~pics ganyu (genshin impact)\ncontoh : ~pics ganyu (genshin impact)/office\ncontoh : ~pics mona (genshin impact)/swimsuit\ncontoh : ~pics hatsune miku/swimsuit\n* optional```~calcprim   : [Jumlah Hari] [Banyak event/bulan] [Durasi Blessing(hari)] ```yaml\ncontoh : ~calcprim 60 15 1```~maps : Map untuk Farm apapun```yaml\ncontoh : ~maps```~charlist   : [element atau all]```yaml\ncontoh : ~charlist anemo    ~charlist all```"
+notes = "\n**Command prefix [~]**" \
+        "\n\n**List Command**\n\n" \
+        "~ping      : ngecek ping" \
+        "```yaml\n" \
+        "contoh : ~ping```" \
+        "~calcdmg   : [attack][critdmg%][talentattack%][elebonus%]" \
+        "```yaml\n" \
+        "contoh : ~calcdmg 2109 150.7 704.2 45.6```" \
+        "~calcresin : [timestart][timeend]" \
+        "```yaml\n" \
+        "contoh : ~calcresin 17.44 22.20```" \
+        "~pics       : [chara][*(series)][/tags]" \
+        "```yaml\n" \
+        "contoh : ~pics ganyu (genshin impact)\n" \
+        "contoh : ~pics ganyu (genshin impact)/office\n" \
+        "contoh : ~pics mona (genshin impact)/swimsuit\n" \
+        "contoh : ~pics hatsune miku/swimsuit\n" \
+        "* optional```" \
+        "~calcprim   : [Jumlah Hari] [Banyak event/bulan] [Durasi Blessing(hari)] " \
+        "```yaml\n" \
+        "contoh : ~calcprim 60 15 1```" \
+        "~maps : Map untuk Farm apapun" \
+        "```yaml\n" \
+        "contoh : ~maps```" \
+        "~charlist   : [element atau all]" \
+        "```yaml\n" \
+        "contoh : ~charlist anemo    ~charlist all```"\
+        "~talent : [char]"\
+        "```yaml\n"\
+        "contoh : ~talent ayaka```"
+
 bot.remove_command('help')
 
 def get_gelImage(tags):
@@ -104,12 +136,11 @@ async def calcprim(ctx, hr, evnt, blessing):
   event = " Event bulanan = " + evnt + " x " + str(420) + " = "  + str(int(evnt)*420) + "\n"
   abs   = " Abyss Floor = " + str( abs_init + (int(int(hr)/14)*600) ) + "\n"
   blss  = " Blessing = "  + blessing + " x " + str(90) + " = " + str( 90 * int(blessing) ) + "\n"
-  mix   = " Total primogem = " + str( res + abs_init + (int(int(hr)/14)*600) + int(evnt)*420)
+  mix   = " Total primogem = " + str( res + absinit + (int(int(hr)/14)*600) + int(evnt)*420)
   output = "```yaml\n+{}+{}+{}+{}+{}```".format(daily,event,abs,blss,mix)
   await ctx.send(output)
 
 # ---------------- img bot ------------------
-
 @bot.command()
 async def pics(ctx, *tags):
     """Calls get_gelImage() with tags specified by user, then sends an image."""
@@ -144,5 +175,76 @@ async def charlist(ctx,elm):
     else :
         await ctx.send("```yaml\nElemental Nation Tidak Ditemukan atau huruf tidak tepat (jangan gunakan Caps)```")
 
-
+@bot.command()
+async def talent(ctx,char):
+    i = 0
+    type = {
+        1: "Basic Attack",
+        2: "E Skill",
+        3: "Q Burst"
+    }
+    page = f"https://genshin.honeyhunterworld.com/db/char/{char}"
+    response = requests.get(page)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    headers = []
+    datass = []
+    if response.status_code == 200:
+        tables = soup.find_all("table", {'class': 'add_stat_table'})
+        tables.remove(tables[0])
+        tables.remove(tables[0])
+        if (char=="ayaka" or char=="mona"):
+            tables.remove(tables[2])
+        a = 3
+        b = 0
+        while (a > 0):
+            tab = tables[b].find_all('tr')
+            b += 1
+            a -= 1
+            c = 0
+            header = []
+            datas = []
+            for tr in tab:
+                data = []
+                tds = tr.find_all('td')
+                d = 0
+                for td in tds:
+                    temp = ""
+                    if (c == 0 and d <= 13):
+                        header.append(td.text)
+                    elif (d <= 13):
+                        temp = td.text.replace(" ", "\n")
+                        temp = temp.replace("-", "-\n")
+                        temp = temp.replace("/", "\n/")
+                        temp = temp.replace("×", "\n×")
+                        temp = temp.replace(":", "")
+                        if (d==0):
+                            temp = "+" + temp
+                        data.append(temp)
+                    else:
+                        break
+                    d += 1
+                if (c == 0):
+                    headers.append(header)
+                else:
+                    datas.append(data)
+                c += 1
+            datass.append(datas)
+    for header, datas in zip(headers, datass):
+        i+=1
+        header.remove(header[3])
+        header.remove(header[4])
+        header.remove(header[5])
+        header.remove(header[9])
+        header.remove(header[6])
+        header.remove(header[7])
+        for data in datas:
+            data.remove(data[3])
+            data.remove(data[4])
+            data.remove(data[5])
+            data.remove(data[9])
+            data.remove(data[6])
+            data.remove(data[7])
+        x = (tabulate(datas, header))
+        await ctx.send("> **{} {}**\n```yaml\n{}```".format(char,type[i],x))
+        
 bot.run("InsertTokenHere")
