@@ -9,9 +9,8 @@ import random
 
 bot = commands.Bot(command_prefix='~')
 
-notes = "\n**Command prefix [~]**\n\n**List Command**\n\n~ping      : ngecek ping```yaml\ncontoh : ~ping```~calcdmg   : [attack][critdmg%][talentattack%][elebonus%]```yaml\ncontoh : ~calcdmg 2109 150.7 704.2 45.6```~calcresin : [timestart][timeend]```yaml\ncontoh : ~calcresin 17.44 22.20```~pics       : [chara][*(series)][/tags][page (default page=1)]```yaml\ncontoh : ~pics ganyu (genshin impact)\ncontoh : ~pics ganyu (genshin impact)/office\ncontoh : ~pics mona (genshin impact)/swimsuit\ncontoh : ~pics hatsune miku/swimsuit\n* optional```~calcprim   : [Primogem/hari] [Jumlah Hari] [Banyak event/bulan] ```yaml\ncontoh : ~calcprim 60 15 1```"
+notes = "\n**Command prefix [~]**\n\n**List Command**\n\n~ping      : ngecek ping```yaml\ncontoh : ~ping```~calcdmg   : [attack][critdmg%][talentattack%][elebonus%]```yaml\ncontoh : ~calcdmg 2109 150.7 704.2 45.6```~calcresin : [timestart][timeend]```yaml\ncontoh : ~calcresin 17.44 22.20```~pics       : [chara][*(series)][/tags]```yaml\ncontoh : ~pics ganyu (genshin impact)\ncontoh : ~pics ganyu (genshin impact)/office\ncontoh : ~pics mona (genshin impact)/swimsuit\ncontoh : ~pics hatsune miku/swimsuit\n* optional```~calcprim   : [Jumlah Hari] [Banyak event/bulan] [Durasi Blessing(hari)] ```yaml\ncontoh : ~calcprim 60 15 1```"
 bot.remove_command('help')
-
 
 def get_gelImage(tags):
     """Returns pictures from Gelbooru with given tags."""
@@ -32,13 +31,13 @@ def get_gelImage(tags):
 
     if rating == "":  # if rating wasn't specified, set safe one
         rating = ratings["rs"]
-    
+
     if ((tags[len(tags)-1]).isdigit()):
         halaman = tags[len(tags)-1]
         tags.remove(tags[len(tags)-1])
     else :
         halaman = '1'
-    
+
     # make tags suitable for Gelbooru API url
     formatted_tags = "_".join(tags).replace("/","+")
 
@@ -47,8 +46,9 @@ def get_gelImage(tags):
     '''
     api_url = f"https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&limit=50&tags={rating}+{formatted_tags}"
     '''
+
     api_url = f"https://danbooru.donmai.us/posts.json?page={halaman}&tags={rating}+{formatted_tags}"
-    
+
     response = requests.get(api_url)
 
     # parsing json
@@ -88,28 +88,33 @@ async def calcresin(ctx,a,b):
   res = int((menit1+menit2)/8)
   await ctx.send("Total Resin = "+str(res))
 
+@bot.command()
+async def calcprim(ctx, hr, evnt, blessing):
+  abs_init = 600
+  if (int(blessing)>int(hr)):
+      blessing = hr
+  res   = ( 60*int(hr) ) + ( 90*int(blessing) )
+  daily = " Daily = " + hr + " x " + str(60) + " = " + str( 60*int(hr) ) + "\n"
+  event = " Event bulanan = " + evnt + " x " + str(420) + " = "  + str(int(evnt)*420) + "\n"
+  abs   = " Abyss Floor = " + str( abs_init + (int(int(hr)/14)*600) ) + "\n"
+  blss  = " Blessing = "  + blessing + " x " + str(90) + " = " + str( 90 * int(blessing) ) + "\n"
+  mix   = " Total primogem = " + str( res + abs_init + (int(int(hr)/14)*600) + int(evnt)*420)
+  output = "```yaml\n+{}+{}+{}+{}+{}```".format(daily,event,abs,blss,mix)
+  await ctx.send(output)
+
 # ---------------- img bot ------------------
 
 @bot.command()
 async def pics(ctx, *tags):
+    """Calls get_gelImage() with tags specified by user, then sends an image."""
     if "rq" in tags or "re" in tags:
         if ctx.channel.is_nsfw():  # check if channel is suitable for given rating
             img = get_gelImage(tags)
             return await ctx.send(img)
-
         else:
             message = "For rating questionable or explicit NSFW channel is required!"
             return await ctx.send(message)
     img = get_gelImage(tags)
     await ctx.send(img)
-
-@bot.command()
-async def calcprim(ctx, prgm, hr, evnt):
-  res = int(prgm) * (int(hr))
-  event = " ditambah Event bulanan = " + str(int(evnt)*420)
-  abs   = " ditambah Abyss Floor bulanan = 600"
-  blss  = " ditambah blessing = " + str(int(hr)*90)
-  mix   = "total primogem = " + str(res) + event + abs + blss
-  await ctx.send(mix)
 
 bot.run("InsertTokenHere")
