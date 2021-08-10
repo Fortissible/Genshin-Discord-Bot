@@ -197,7 +197,37 @@ async def charlist(ctx, elm):
 
 
 @bot.command()
-async def talent(ctx, char):
+async def talent(ctx,char):
+    strings = {"Charged": "Charge",
+               "Inherited": "Inhert", "Explosion": "Explsn",
+               "Duration": "Drtion", "Stamina": "Stmina",
+               "Regeneration": "Regen", "Continuous": "Cont",
+               "Spinning": "Spin", "Absorption": "Absorb",
+               "Lightning": "Lgtning", "Reduction": "Reduce",
+               "Infusion": "Infuse", "Slashing": "Slash",
+               "Summoning": "Summon", "Falling": "Fall",
+               "Thunder": "Thnder", "Consumption": "Cnsume",
+               "Elemental": "Elem", "Entering": "Enter",
+               "Exiting": "Exit", "Activation": "Active",
+               "Healing": "Heal", "Stiletto": "Stleto",
+               "Thunderclap": "Thunder Clap", "Consecutive": "Cont",
+               "Conductive": "Cond", "Discharge": "Dchrge", "Illusory": "Illsry",
+               "Triggering": "Triger", "Regenerated": "Regen", "Electro": "Elctro",
+               "duration": "drtion", "Companion": "Cmpnion", "Additional": "Add",
+               "Charging": "Charge", "Tornado": "Trnado", "Meteorite": "Meteor",
+               "Shockwave": "Shock Wave", "Stonewall": "Stone Wall",
+               "Pyronado": "Pyro nado", "Plunging": "Plunge",
+               "Preemptive": "Pre Emptve", "(Ranged)": "Ranged",
+               "Resonance": "Reso", "Petrification": "Petri", "Frostflake": "Frost Flake",
+               "Transient": "Trans", "Blossom": "Blosom", "Cutting": "Cut",
+               "Decrease": "Dcrese", "Scarlet": "Scrlet", "Icewhirl": "Ice Whirl",
+               "Grimheart": "Grim Heart", "Physical": "Phys", "Lightfall": "Light Fall",
+               "Maximum": "Max", "Abundance": "Abndce", "Kindling": "Kind-ling",
+               "Blazing": "Blaze", "PressFuufuu": "Press Fuu Fuu", "Whirlwind": "Whirl Wind",
+               "Fuufuu": "Fuu fuu", "Coordinated": "Coor", "Hitotachi": "Hito-tachi",
+               "Resolve": "Rsolve", "Restoration": "Rstore", "Titanbreaker": "Titan Breaker",
+               "Stormcluster": "Storm Cluster", "Chillwater": "Chill Water",
+               "Bomblets": "Bomb-lets", "Rushing": "Rush"}
     i = 0
     type = {
         1: "Basic Attack",
@@ -213,7 +243,7 @@ async def talent(ctx, char):
         tables = soup.find_all("table", {'class': 'add_stat_table'})
         tables.remove(tables[0])
         tables.remove(tables[0])
-        if (char == "ayaka" or char == "mona"):
+        if (char=="ayaka" or char=="mona"):
             tables.remove(tables[2])
         a = 3
         b = 0
@@ -233,11 +263,14 @@ async def talent(ctx, char):
                     if (c == 0 and d <= 13):
                         header.append(td.text)
                     elif (d <= 13):
-                        temp = td.text.replace(" ", "\n")
-                        temp = temp.replace("-", "-\n")
-                        temp = temp.replace("/", "\n/")
-                        temp = temp.replace("×", "\n×")
+                        temp = td.text
+                        for string in strings:
+                            temp = temp.replace(string, strings[string])
                         temp = temp.replace(":", "")
+                        temp = temp.replace(" ", "\n")
+                        temp = temp.replace("-", "\n-\n")
+                        temp = temp.replace("/", "\n/\n")
+                        temp = temp.replace("×", "\n×\n")
                         if (d == 0):
                             temp = "+" + temp
                         data.append(temp)
@@ -251,7 +284,7 @@ async def talent(ctx, char):
                 c += 1
             datass.append(datas)
     for header, datas in zip(headers, datass):
-        i += 1
+        i+=1
         header.remove(header[3])
         header.remove(header[4])
         header.remove(header[5])
@@ -266,7 +299,44 @@ async def talent(ctx, char):
             data.remove(data[6])
             data.remove(data[7])
         x = (tabulate(datas, header))
-        await ctx.send("> **{} {}**\n```yaml\n{}```".format(char, type[i], x))
+        await ctx.send("> **{} {}**\n```yaml\n{}```".format(char,type[i],x))
+
+@bot.command()
+async def nonton(ctx,*tags):
+    list_hal = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15']
+    tags=list(str(tags))
+    print(tags)
+    hal=random.randint(1,15)
+    search = ""
+    #if tags[0] in list_hal:
+        #hal = int(tags[0])
+        #tags = tags.remove(tags[0])
+    for i in range(len(tags)):
+        search += tags[i]+"+"
+    print(search)
+    page = requests.get(f'https://www.google.com/search?q=youtube+{search}')
+    soup = BeautifulSoup(page.text, 'html.parser')
+    counter = 0
+    format = 47
+    if page.status_code == 200:
+        str_soup = str(soup)
+        list_link = []
+
+        link = ""
+        parser = str_soup.find("https://www.youtube.com/watch")
+        link += str_soup[parser:parser + 47]
+        link = link.replace("%3Fv%3D", "?v=")
+        list_link.append(link)
+
+        while (counter < 15 and str_soup[parser + format + 1:].find("https://www.youtube.com/watch") + parser != -1):
+            link = ""
+            parser = str_soup[parser + format + 1:].find("https://www.youtube.com/watch") + parser
+            link += str_soup[parser + format + 1:parser + format + 1 + 47]
+            link = link.replace("%3Fv%3D", "?v=")
+            list_link.append(link)
+            format += 47
+            counter += 1
+    await ctx.send(list_link[hal])
 
 @bot.command()
 async def test_embed(ctx):
@@ -274,11 +344,14 @@ async def test_embed(ctx):
     embed.add_field(name="Testing2", value="Testing Context1")
     embed.add_field(name="Testing3", value="Testing Context2")
     embed.add_field(name="Testing4", value="Testing Context3")
+    embed.add_field(name="Testing5", value="Testing Context4")
+    embed.add_field(name="Testing6", value="Testing Context5")
+    embed.add_field(name="Testing7", value="Testing Context6")
     embed.add_field(name="Ganyu cantik", value="Istri ku cantik sekali omaygatttt")
     #embed.add_field(name="Server ID", value=f"{ctx.guild.id}")
     # embed.set_thumbnail(url=f"{ctx.guild.icon}")
-    embed.set_thumbnail(url="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtiqTRvl9ca01YB1ojk72iPPSglB-QQXSGcbO-yp-kUJ1sNsPhKg7pEtAOsXlPMwYOXyU&usqp=CAU")
-    embed.set_image(url="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiY5V4V7xxT-YL-ieCxDyOUYDf-ssuPThBuZltbP9bA77zmBk5opWil41uDqShvwnI9MU&usqp=CAU")
+    embed.set_thumbnail(url="https://preview.redd.it/n913ghbcy2861.png?width=408&format=png&auto=webp&s=3d93b16d1db213d97374fbdfdddaae80dbead430")
+    embed.set_image(url="https://indogamers.id/courier/2021/01/ErQvMkBUYAIZE3P.jpg")
     await ctx.send(embed=embed)
         
 bot.run("InsertTokenHere")
