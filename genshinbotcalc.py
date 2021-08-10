@@ -7,7 +7,7 @@ from discord.ext import commands
 import random
 from tabulate import tabulate
 
-#tkn = os.environ['tok']
+# tkn = os.environ['tok']
 
 bot = commands.Bot(command_prefix='~')
 
@@ -37,12 +37,13 @@ notes = "\n**Command prefix [~]**" \
         "contoh : ~maps```" \
         "~charlist   : [element atau all]" \
         "```yaml\n" \
-        "contoh : ~charlist anemo    ~charlist all```"\
-        "~talent : [char]"\
-        "```yaml\n"\
+        "contoh : ~charlist anemo    ~charlist all```" \
+        "~talent : [char]" \
+        "```yaml\n" \
         "contoh : ~talent ayaka```"
 
 bot.remove_command('help')
+
 
 def get_gelImage(tags):
     """Returns pictures from Gelbooru with given tags."""
@@ -64,14 +65,14 @@ def get_gelImage(tags):
     if rating == "":  # if rating wasn't specified, set safe one
         rating = ratings["rs"]
 
-    if ((tags[len(tags)-1]).isdigit()):
-        halaman = tags[len(tags)-1]
-        tags.remove(tags[len(tags)-1])
-    else :
+    if ((tags[len(tags) - 1]).isdigit()):
+        halaman = tags[len(tags) - 1]
+        tags.remove(tags[len(tags) - 1])
+    else:
         halaman = '1'
 
     # make tags suitable for Gelbooru API url
-    formatted_tags = "_".join(tags).replace("/","+")
+    formatted_tags = "_".join(tags).replace("/", "+")
 
     print(rating, formatted_tags)
 
@@ -96,49 +97,59 @@ def get_gelImage(tags):
 
 @bot.event
 async def on_ready():
-  print('{0.user} ready to go for new Adventure!'.format(bot))
+    print('{0.user} ready to go for new Adventure!'.format(bot))
+
 
 @bot.command()
 async def ping(ctx):
-  await ctx.send(f'Bacot! [{round(bot.latency *1000)}ms]')
+    await ctx.send(f'Bacot! [{round(bot.latency * 1000)}ms]')
+
 
 @bot.command()
 async def helps(ctx):
-  await ctx.send(notes)
+    await ctx.send(notes)
+
 
 @bot.command()
-async def calcdmg(ctx,att,cd,ability,elebonus):
-  res = int(att) * float(ability)/100 * (1 + float(cd)/100) * (1 + float(elebonus)/100)
-  a = " Total Damage yang diperoleh = " + str(res)
-  output = "```yaml\n+{}```".format(a)
-  await ctx.send(output)
+async def calcdmg(ctx, att, cd, ability, elebonus):
+    res = int(att) * (float(ability) / 100) * (float(elebonus) / 100)* (1 + float(cd) / 100)
+    bsra = " Besar Attack = " + str(int(att))
+    crd  = " Besar Critical damage = " + str(cd) + "%"
+    elmb = " Besar Elemental Bonus = " + str(elebonus) + "%"
+    talt = " Talent Damage = " + str(ability) + "%"
+    a = " Total Damage yang diperoleh = " + str(int(res))
+    output = "```yaml\n+{}\n+{}\n+{}\n+{}\n+{}```".format(bsra,crd,elmb,talt,a)
+    await ctx.send(output)
+
 
 @bot.command()
-async def calcresin(ctx,a,b):
-  timestart = float(a)
-  wktm = "Waktu Mulai : " + str(timestart)
-  timeend = float(b)
-  wkta = "Waktu Akhir : " + str(timeend)
-  menit1 = abs((int(timeend)-int(timestart))*60)
-  menit2 = ((timeend%1)-(timestart%1))*100
-  res = int((menit1+menit2)/8)
-  total = "Resin yang didapat : " + str(res)
+async def calcresin(ctx, a, b):
+    timestart = float(a)
+    wktm = "Waktu Mulai : " + str(timestart)
+    timeend = float(b)
+    wkta = "Waktu Akhir : " + str(timeend)
+    menit1 = abs((int(timeend) - int(timestart)) * 60)
+    menit2 = ((timeend % 1) - (timestart % 1)) * 100
+    res = int((menit1 + menit2) / 8)
+    total = "Resin yang didapat : " + str(res)
 
-  await ctx.send("```yaml\n+{}\n+{}\n+{}```".format(wktm,wkta,total))
+    await ctx.send("```yaml\n+{}\n+{}\n+{}```".format(wktm, wkta, total))
+
 
 @bot.command()
 async def calcprim(ctx, hr, evnt, blessing):
-  abs_init = 600
-  if (int(blessing)>int(hr)):
-      blessing = hr
-  res   = ( 60*int(hr) ) + ( 90*int(blessing) )
-  daily = " Daily = " + hr + " x " + str(60) + " = " + str( 60*int(hr) ) + "\n"
-  event = " Event bulanan = " + evnt + " x " + str(420) + " = "  + str(int(evnt)*420) + "\n"
-  abs   = " Abyss Floor = " + str( abs_init + (int(int(hr)/14)*600) ) + "\n"
-  blss  = " Blessing = "  + blessing + " x " + str(90) + " = " + str( 90 * int(blessing) ) + "\n"
-  mix   = " Total primogem = " + str( res + absinit + (int(int(hr)/14)*600) + int(evnt)*420)
-  output = "```yaml\n+{}+{}+{}+{}+{}```".format(daily,event,abs,blss,mix)
-  await ctx.send(output)
+    abs_init = 600
+    if (int(blessing) > int(hr)):
+        blessing = hr
+    res = (60 * int(hr)) + (90 * int(blessing))
+    daily = " Daily = " + hr + " x " + str(60) + " = " + str(60 * int(hr)) + "\n"
+    event = " Event bulanan = " + evnt + " x " + str(420) + " = " + str(int(evnt) * 420) + "\n"
+    abs = " Abyss Floor = " + str(abs_init + (int(int(hr) / 14) * 600)) + "\n"
+    blss = " Blessing = " + blessing + " x " + str(90) + " = " + str(90 * int(blessing)) + "\n"
+    mix = " Total primogem = " + str(res + abs_init + (int(int(hr) / 14) * 600) + int(evnt) * 420)
+    output = "```yaml\n+{}+{}+{}+{}+{}```".format(daily, event, abs, blss, mix)
+    await ctx.send(output)
+
 
 # ---------------- img bot ------------------
 @bot.command()
@@ -154,29 +165,39 @@ async def pics(ctx, *tags):
     img = get_gelImage(tags)
     await ctx.send(img)
 
+
 @bot.command()
 async def maps(ctx):
-  await ctx.send("```yaml\n\t\t\t\t-------- Map Farm Genshin Impact --------\n\ncopy link : https://webstatic-sea.mihoyo.com/app/ys-map-sea/?lang=id-id#```")
+    await ctx.send(
+        "```yaml\n\t\t\t\t-------- Map Farm Genshin Impact --------\n\ncopy link : https://webstatic-sea.mihoyo.com/app/ys-map-sea/?lang=id-id#```")
+
 
 @bot.command()
-async def charlist(ctx,elm):
-    if elm == "pyro" :
-        await ctx.send("```yaml\n\t\t-------- Pyro Character Genshin --------\n\n+ Amber ★★★★\n+ Bennet ★★★★ \n+ Xiangling ★★★★\n+ Xinyann ★★★★\n+ yanfei ★★★★\n+ Diluc ★★★★★\n+ Klee ★★★★★\n+ Hu Tao ★★★★★\n+ Yoimiya ★★★★★```")
-    elif elm == "anemo" :
-        await ctx.send("```yaml\n\t\t-------- anemo Character Genshin --------\n\n+ Sucrose ★★★★\n+ Sayu ★★★★ \n+ Jean ★★★★★\n+ venti ★★★★★\n+ Xiao ★★★★★\n+ Kaedehara Kazuha ★★★★★```")
-    elif elm == "cryo" :
-        await ctx.send("```yaml\n\t\t-------- Cryo Character Genshin --------\n\n+ Kaeya ★★★★\n+ Chongyun ★★★★\n+ Diona ★★★★\n+ Rosaria ★★★★\n+ Qiqi ★★★★★\n+ Ganyu ★★★★★\n+ Kamisato Ayaka ★★★★★\n+ Aloy ★★★★★```")
-    elif elm == "geo" :
-        await ctx.send("```yaml\n\t\t-------- Geo Character Genshin --------\n\n+ Noelle ★★★★\n+ Ningguang ★★★★ \n+ Gorou ★★★★\n+ Zhongli ★★★★★\n+ Albedo ★★★★★```")
-    elif elm == "electro" :
-        await ctx.send("```yaml\n\t\t-------- Electro Character Genshin --------\n\n+ Lisa ★★★★\n+ Fischl ★★★★ \n+ Razor ★★★★\n+ Beidou ★★★★\n+ Kujou Sara ★★★★\n+ Keqing ★★★★★\n+ Raiden Shogun(Baal) ★★★★★```")
-    elif elm == "all" :
-        await ctx.send("```yaml\n\t\t-------- All Character Genshin --------\n\nPyro Nation :\n+ Amber ★★★★\n+ Bennet ★★★★ \n+ Xiangling ★★★★\n+ Xinyan ★★★★\n+ yanfei ★★★★\n+ Diluc ★★★★★\n+ Klee ★★★★★\n+ Hu Tao ★★★★★\n+ Yoimiya ★★★★★\nElectro Nation :\n+ Lisa ★★★★\n+ Fischl ★★★★ \n+ Razor ★★★★\n+ Beidou ★★★★\n+ Kujou Sara ★★★★\n+ Keqing ★★★★★\n+ Raiden Shogun(Baal) ★★★★★\nAnemo Nation :\n+ Sucrose ★★★★\n+ Sayu ★★★★ \n+ Jean ★★★★★\n+ venti ★★★★★\n+ Xiao ★★★★★\n+ Kaedehara Kazuha ★★★★★\nCryo Nation :\n+ Kaeya ★★★★\n+ Chongyun ★★★★\n+ Diona ★★★★\n+ Rosaria ★★★★\n+ Qiqi ★★★★★\n+ Ganyu ★★★★★\n+ Kamisato Ayaka ★★★★★\n+ Aloy ★★★★★\nGeo Nation :\n+ Noelle ★★★★\n+ Ningguang ★★★★ \n+ Gorou ★★★★\n+ Zhongli ★★★★★\n+ Albedo ★★★★★```")
-    else :
+async def charlist(ctx, elm):
+    if elm == "pyro":
+        await ctx.send(
+            "```yaml\n\t\t-------- Pyro Character Genshin --------\n\n+ Amber ★★★★\n+ Bennet ★★★★ \n+ Xiangling ★★★★\n+ Xinyann ★★★★\n+ yanfei ★★★★\n+ Diluc ★★★★★\n+ Klee ★★★★★\n+ Hu Tao ★★★★★\n+ Yoimiya ★★★★★```")
+    elif elm == "anemo":
+        await ctx.send(
+            "```yaml\n\t\t-------- anemo Character Genshin --------\n\n+ Sucrose ★★★★\n+ Sayu ★★★★ \n+ Jean ★★★★★\n+ venti ★★★★★\n+ Xiao ★★★★★\n+ Kaedehara Kazuha ★★★★★```")
+    elif elm == "cryo":
+        await ctx.send(
+            "```yaml\n\t\t-------- Cryo Character Genshin --------\n\n+ Kaeya ★★★★\n+ Chongyun ★★★★\n+ Diona ★★★★\n+ Rosaria ★★★★\n+ Qiqi ★★★★★\n+ Ganyu ★★★★★\n+ Kamisato Ayaka ★★★★★\n+ Aloy ★★★★★```")
+    elif elm == "geo":
+        await ctx.send(
+            "```yaml\n\t\t-------- Geo Character Genshin --------\n\n+ Noelle ★★★★\n+ Ningguang ★★★★ \n+ Gorou ★★★★\n+ Zhongli ★★★★★\n+ Albedo ★★★★★```")
+    elif elm == "electro":
+        await ctx.send(
+            "```yaml\n\t\t-------- Electro Character Genshin --------\n\n+ Lisa ★★★★\n+ Fischl ★★★★ \n+ Razor ★★★★\n+ Beidou ★★★★\n+ Kujou Sara ★★★★\n+ Keqing ★★★★★\n+ Raiden Shogun(Baal) ★★★★★```")
+    elif elm == "all":
+        await ctx.send(
+            "```yaml\n\t\t-------- All Character Genshin --------\n\nPyro Nation :\n+ Amber ★★★★\n+ Bennet ★★★★ \n+ Xiangling ★★★★\n+ Xinyan ★★★★\n+ yanfei ★★★★\n+ Diluc ★★★★★\n+ Klee ★★★★★\n+ Hu Tao ★★★★★\n+ Yoimiya ★★★★★\nElectro Nation :\n+ Lisa ★★★★\n+ Fischl ★★★★ \n+ Razor ★★★★\n+ Beidou ★★★★\n+ Kujou Sara ★★★★\n+ Keqing ★★★★★\n+ Raiden Shogun(Baal) ★★★★★\nAnemo Nation :\n+ Sucrose ★★★★\n+ Sayu ★★★★ \n+ Jean ★★★★★\n+ venti ★★★★★\n+ Xiao ★★★★★\n+ Kaedehara Kazuha ★★★★★\nCryo Nation :\n+ Kaeya ★★★★\n+ Chongyun ★★★★\n+ Diona ★★★★\n+ Rosaria ★★★★\n+ Qiqi ★★★★★\n+ Ganyu ★★★★★\n+ Kamisato Ayaka ★★★★★\n+ Aloy ★★★★★\nGeo Nation :\n+ Noelle ★★★★\n+ Ningguang ★★★★ \n+ Gorou ★★★★\n+ Zhongli ★★★★★\n+ Albedo ★★★★★```")
+    else:
         await ctx.send("```yaml\nElemental Nation Tidak Ditemukan atau huruf tidak tepat (jangan gunakan Caps)```")
 
+
 @bot.command()
-async def talent(ctx,char):
+async def talent(ctx, char):
     i = 0
     type = {
         1: "Basic Attack",
@@ -192,7 +213,7 @@ async def talent(ctx,char):
         tables = soup.find_all("table", {'class': 'add_stat_table'})
         tables.remove(tables[0])
         tables.remove(tables[0])
-        if (char=="ayaka" or char=="mona"):
+        if (char == "ayaka" or char == "mona"):
             tables.remove(tables[2])
         a = 3
         b = 0
@@ -217,7 +238,7 @@ async def talent(ctx,char):
                         temp = temp.replace("/", "\n/")
                         temp = temp.replace("×", "\n×")
                         temp = temp.replace(":", "")
-                        if (d==0):
+                        if (d == 0):
                             temp = "+" + temp
                         data.append(temp)
                     else:
@@ -230,7 +251,7 @@ async def talent(ctx,char):
                 c += 1
             datass.append(datas)
     for header, datas in zip(headers, datass):
-        i+=1
+        i += 1
         header.remove(header[3])
         header.remove(header[4])
         header.remove(header[5])
@@ -245,6 +266,19 @@ async def talent(ctx,char):
             data.remove(data[6])
             data.remove(data[7])
         x = (tabulate(datas, header))
-        await ctx.send("> **{} {}**\n```yaml\n{}```".format(char,type[i],x))
+        await ctx.send("> **{} {}**\n```yaml\n{}```".format(char, type[i], x))
+
+@bot.command()
+async def test_embed(ctx):
+    embed = discord.Embed(title="Testing1", description="Lorem Ipsum asdasd", color=discord.Color.blue())
+    embed.add_field(name="Testing2", value="Testing Context1")
+    embed.add_field(name="Testing3", value="Testing Context2")
+    embed.add_field(name="Testing4", value="Testing Context3")
+    embed.add_field(name="Ganyu cantik", value="Istri ku cantik sekali omaygatttt")
+    #embed.add_field(name="Server ID", value=f"{ctx.guild.id}")
+    # embed.set_thumbnail(url=f"{ctx.guild.icon}")
+    embed.set_thumbnail(url="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtiqTRvl9ca01YB1ojk72iPPSglB-QQXSGcbO-yp-kUJ1sNsPhKg7pEtAOsXlPMwYOXyU&usqp=CAU")
+    embed.set_image(url="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiY5V4V7xxT-YL-ieCxDyOUYDf-ssuPThBuZltbP9bA77zmBk5opWil41uDqShvwnI9MU&usqp=CAU")
+    await ctx.send(embed=embed)
         
 bot.run("InsertTokenHere")
