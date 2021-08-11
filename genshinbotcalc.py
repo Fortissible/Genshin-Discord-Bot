@@ -36,7 +36,16 @@ notes = "\n**Command prefix [~]**" \
         "contoh : ~charlist anemo    ~charlist all```"\
         "~talent : [char]"\
         "```yaml\n"\
-        "contoh : ~talent ayaka```"
+        "contoh : ~talent ayaka```"\
+        "~info  : [Nama Character] (Jika lebih dari 1 kata gunakan Underline'_') " \
+        "```yaml\n" \
+        "contoh : ~info Hu_Tao```" \
+        "~nonton : [Nama Video] " \
+        "```yaml\n" \
+        "contoh : ~nonton Ganyu wangi```"\
+        "~wp : [Nama Weapon] (Jika lebih dari 1 kata gunakan Underline'_')" \
+        "```yaml\n" \
+        "contoh : ~wp Skyward_Harp```"
 
 bot.remove_command('help')
 
@@ -136,7 +145,7 @@ async def calcprim(ctx, hr, evnt, blessing):
   event = " Event bulanan = " + evnt + " x " + str(420) + " = "  + str(int(evnt)*420) + "\n"
   abs   = " Abyss Floor = " + str( abs_init + (int(int(hr)/14)*600) ) + "\n"
   blss  = " Blessing = "  + blessing + " x " + str(90) + " = " + str( 90 * int(blessing) ) + "\n"
-  mix   = " Total primogem = " + str( res + absinit + (int(int(hr)/14)*600) + int(evnt)*420)
+  mix   = " Total primogem = " + str( res + abs_init + (int(int(hr)/14)*600) + int(evnt)*420)
   output = "```yaml\n+{}+{}+{}+{}+{}```".format(daily,event,abs,blss,mix)
   await ctx.send(output)
 
@@ -281,22 +290,6 @@ async def talent(ctx,char):
         await ctx.send("> **{} {}**\n```yaml\n{}```".format(char,type[i],x))
 
 @bot.command()
-async def test_embed(ctx):
-    embed = discord.Embed(title="Testing1", description="Lorem Ipsum asdasd", color=discord.Color.blue())
-    embed.add_field(name="Testing2", value="Testing Context1")
-    embed.add_field(name="Testing3", value="Testing Context2")
-    embed.add_field(name="Testing4", value="Testing Context3")
-    embed.add_field(name="Testing5", value="Testing Context4")
-    embed.add_field(name="Testing6", value="Testing Context5")
-    embed.add_field(name="Testing7", value="Testing Context6")
-    embed.add_field(name="Ganyu cantik", value="Istri ku cantik sekali omaygatttt")
-    #embed.add_field(name="Server ID", value=f"{ctx.guild.id}")
-    # embed.set_thumbnail(url=f"{ctx.guild.icon}")
-    embed.set_thumbnail(url="https://preview.redd.it/n913ghbcy2861.png?width=408&format=png&auto=webp&s=3d93b16d1db213d97374fbdfdddaae80dbead430")
-    embed.set_image(url="https://indogamers.id/courier/2021/01/ErQvMkBUYAIZE3P.jpg")
-    await ctx.send(embed=embed)
-
-@bot.command()
 async def info(ctx,char):
     '''
     urllib.request.urlretrieve('https://static.wikia.nocookie.net/gensin-impact/images/8/8d/Character_Ganyu_Card.png/revision/latest?cb=20210106062018',"ganyu.png")
@@ -309,6 +302,7 @@ async def info(ctx,char):
     im1 = im.crop((left, top, right, bottom))
     #im1.show()
     '''
+    chars = char.replace(' ','_')
     page = f'https://genshin-impact.fandom.com/wiki/{char}'
     response = requests.get(page)
     counter = 0
@@ -413,5 +407,74 @@ async def nonton(ctx,*tags):
             format += 47
             counter += 1
     await ctx.send(list_link[hal])
-        
+
+
+@bot.command()
+async def wp(ctx, weap):
+    weaps = weap.replace(' ','_')
+    page = f'https://genshin-impact.fandom.com/wiki/{weaps}'
+    response = requests.get(page)
+    counter = 0
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.text, 'html.parser')
+        a = soup.find('aside')
+
+        fg = a.find('figure')
+        img = fg.find('a', {'class': 'image image-thumbnail'})
+        gmbr = img.find('img')
+        img_link = gmbr['src']
+        print(img_link)
+        name = weap
+
+        div1 = a.find('div', {'data-source': 'type'})
+        type = div1.find('a')
+        print(type.text)
+
+        div2 = a.find('div', {'data-source': 'rarity'})
+        rar = div2.find('img')
+        rarity = rar['title']
+        print(rarity)
+
+        div3 = a.find('section', {'class': 'pi-item pi-group pi-border-color'})
+        st = div3.find('table')
+        tab = st.find('tbody')
+        stat = tab.find_all('td')
+        print(stat[0].text)
+        print(stat[1].text)
+        print(stat[2].text)
+
+        div4 = a.find('section', {'class': 'pi-item pi-panel pi-border-color wds-tabber'})
+        desk = div4.find('table')
+
+        head = desk.find('thead')
+        th = head.find('th')
+        header = th.text
+
+        body = desk.find('tbody')
+        td = body.find('td')
+        print(td.text)
+
+        wpc = {"Sword": 0xe84833, "Claymore": 0x2372fa, "Polearm": 0xebbb38, "Catalyst": 0xa838e8, "Bow": 0x38eb71}
+        logo = {
+            "Sword": "https://static.wikia.nocookie.net/gensin-impact/images/8/81/Icon_Sword.png/revision/latest/scale-to-width-down/128?cb=20210413210800",
+            "Claymore": "https://static.wikia.nocookie.net/gensin-impact/images/6/66/Icon_Claymore.png/revision/latest?cb=20210413210803",
+            "Polearm": "https://static.wikia.nocookie.net/gensin-impact/images/6/6a/Icon_Polearm.png/revision/latest?cb=20210413210804",
+            "Catalyst": "https://static.wikia.nocookie.net/gensin-impact/images/2/27/Icon_Catalyst.png/revision/latest?cb=20210413210802",
+            "Bow": "https://static.wikia.nocookie.net/gensin-impact/images/8/81/Icon_Bow.png/revision/latest?cb=20210413210801"}
+
+        embed = discord.Embed(title=name, color=wpc[f'{type.text}'])
+        embed.set_author(name="Genshin Impact Fandom", url="https://genshin-impact.fandom.com/",
+                         icon_url="https://img.utdstc.com/icon/9a6/3d0/9a63d0817ee337a44e148854654a88fa144cfc6f2c31bc85f860f4a42c92019f:200")
+        embed.add_field(name="Weapon Type", value=type.text, inline=True)
+        embed.add_field(name="Rarity", value=rarity, inline=True)
+        embed.add_field(name="Base ATK lvl1", value=stat[0].text, inline=False)
+        embed.add_field(name="Sec Stat Type", value=stat[1].text, inline=True)
+        embed.add_field(name="Sec Stat lvl1", value=stat[2].text, inline=True)
+        embed.add_field(name=th.text, value=td.text, inline=False)
+        # embed.add_field(name="Server ID", value=f"{ctx.guild.id}")
+        # embed.set_thumbnail(url=f"{ctx.guild.icon}")
+        embed.set_thumbnail(url=logo[f'{type.text}'])
+        embed.set_image(url=f"{img_link}")
+        await ctx.send(embed=embed)
+
 bot.run("InsertTokenHere")
