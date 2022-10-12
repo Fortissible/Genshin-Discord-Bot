@@ -1,2 +1,2 @@
 # genshinbotcalc
-Gabut Project
+Discord Bot: TeyvatAdventurer#6613
