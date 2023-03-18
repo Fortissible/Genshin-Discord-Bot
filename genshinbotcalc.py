@@ -2,10 +2,11 @@ import os,discord,json,random,requests,urllib.request
 from bs4 import BeautifulSoup
 from discord.ext import commands
 from tabulate import tabulate
+from eventnews import event_news
 
 #tkn = os.environ['tok']
-
-bot = commands.Bot(command_prefix='~')
+intents = discord.Intents.all()
+bot = commands.Bot(command_prefix='~', intents=intents)
 
 notes = "\n**Command prefix [~]**" \
         "\n\n**List Command**\n\n" \
@@ -292,17 +293,17 @@ async def talent(ctx,char):
 @bot.command()
 async def info(ctx,char):
     '''
-    urllib.request.urlretrieve('https://static.wikia.nocookie.net/gensin-impact/images/8/8d/Character_Ganyu_Card.png/revision/latest?cb=20210106062018',"ganyu.png")
-    im = Image.open(r"ganyu.png")
-    width, height = im.size
-    left = 0
-    top = 250
-    right = width
-    bottom = height - 350
-    im1 = im.crop((left, top, right, bottom))
-    #im1.show()
-    '''
-    chars = char.replace(' ','_')
+        urllib.request.urlretrieve('https://static.wikia.nocookie.net/gensin-impact/images/8/8d/Character_Ganyu_Card.png/revision/latest?cb=20210106062018',"ganyu.png")
+        im = Image.open(r"ganyu.png")
+        width, height = im.size
+        left = 0
+        top = 250
+        right = width
+        bottom = height - 350
+        im1 = im.crop((left, top, right, bottom))
+        #im1.show()
+        '''
+    chars = char.replace(' ', '_')
     page = f'https://genshin-impact.fandom.com/wiki/{char}'
     response = requests.get(page)
     counter = 0
@@ -336,22 +337,24 @@ async def info(ctx,char):
         char_bd = data.find('div', {'data-source': 'birthday'})
         char_nation = data.find('div', {'data-source': 'region'})
         affs = data.find('div', {'data-source': 'affiliation'})
-        char_aff=""
-        ct=0
+        char_aff = ""
+        ct = 0
         limits = len(affs.find_all('a'))
         for affiliation in affs.find_all('a'):
-            ct+=1
-            if (ct<limits):
-                char_aff+= affiliation.text+", "
+            ct += 1
+            if (ct < limits):
+                char_aff += affiliation.text + ", "
             else:
-                char_aff+= affiliation.text
-        colors = {"Pyro":0xe84833,"Cryo":0x61f2ff,"Hydro":0x2372fa,"Electro":0xa838e8,"Geo":0xebbb38,"Anemo":0x38eb71}
-        ele_png= {"Electro":"https://static.wikia.nocookie.net/gensin-impact/images/7/73/Element_Electro.png/revision/latest/scale-to-width-down/64?cb=20201116063049",
-                  "Pyro":"https://static.wikia.nocookie.net/gensin-impact/images/e/e8/Element_Pyro.png/revision/latest/scale-to-width-down/64?cb=20201116063114",
-                  "Hydro":"https://static.wikia.nocookie.net/gensin-impact/images/3/35/Element_Hydro.png/revision/latest/scale-to-width-down/64?cb=20201116063105",
-                  "Cryo":"https://static.wikia.nocookie.net/gensin-impact/images/8/88/Element_Cryo.png/revision/latest/scale-to-width-down/64?cb=20201116063123",
-                  "Anemo":"https://static.wikia.nocookie.net/gensin-impact/images/a/a4/Element_Anemo.png/revision/latest/scale-to-width-down/64?cb=20201116063017",
-                  "Geo":"https://static.wikia.nocookie.net/gensin-impact/images/4/4a/Element_Geo.png/revision/latest/scale-to-width-down/64?cb=20201116063036"}
+                char_aff += affiliation.text
+        colors = {"Pyro": 0xe84833, "Cryo": 0x61f2ff, "Hydro": 0x2372fa, "Electro": 0xa838e8, "Geo": 0xebbb38,
+                  "Anemo": 0x38eb71}
+        ele_png = {
+            "Electro": "https://static.wikia.nocookie.net/gensin-impact/images/7/73/Element_Electro.png/revision/latest/scale-to-width-down/64?cb=20201116063049",
+            "Pyro": "https://static.wikia.nocookie.net/gensin-impact/images/e/e8/Element_Pyro.png/revision/latest/scale-to-width-down/64?cb=20201116063114",
+            "Hydro": "https://static.wikia.nocookie.net/gensin-impact/images/3/35/Element_Hydro.png/revision/latest/scale-to-width-down/64?cb=20201116063105",
+            "Cryo": "https://static.wikia.nocookie.net/gensin-impact/images/8/88/Element_Cryo.png/revision/latest/scale-to-width-down/64?cb=20201116063123",
+            "Anemo": "https://static.wikia.nocookie.net/gensin-impact/images/a/a4/Element_Anemo.png/revision/latest/scale-to-width-down/64?cb=20201116063017",
+            "Geo": "https://static.wikia.nocookie.net/gensin-impact/images/4/4a/Element_Geo.png/revision/latest/scale-to-width-down/64?cb=20201116063036"}
         embed = discord.Embed(title=char_name.text, description=char_title.text, color=colors[f'{char_elem}'])
         embed.set_author(name="Genshin Impact Fandom", url="https://genshin-impact.fandom.com/",
                          icon_url="https://img.utdstc.com/icon/9a6/3d0/9a63d0817ee337a44e148854654a88fa144cfc6f2c31bc85f860f4a42c92019f:200")
@@ -370,6 +373,34 @@ async def info(ctx,char):
         await ctx.send(embed=embed)
     else:
         print("Karakter Tidak Ditemukan, Periksa kembali nama karakter yang di input")
+
+@bot.command()
+async def event(ctx):
+    titles, imgs, durations, event_type = event_news(0)
+    if len(titles) == 0:
+        print("Data tidak tersedia, atau terjadi bug pada bot, harap hubungi developer")
+    else:
+        for idx in range(len(titles)):
+            embed = discord.Embed(title=titles[idx], description=durations[idx], color=0x38eb71)
+            embed.set_author(name="Genshin Impact Fandom", url="https://genshin-impact.fandom.com/",
+                             icon_url="https://img.utdstc.com/icon/9a6/3d0/9a63d0817ee337a44e148854654a88fa144cfc6f2c31bc85f860f4a42c92019f:200")
+            embed.add_field(name="Event Type", value=event_type[idx], inline=True)
+            embed.set_image(url=imgs[idx])
+            await ctx.send(embed=embed)
+
+@bot.command()
+async def upcoming_event(ctx):
+    titles, imgs, durations, event_type = event_news(1)
+    if len(titles) == 1:
+        print("Data tidak tersedia, atau terjadi bug pada bot, harap hubungi developer")
+    else :
+        for idx in range(len(titles)):
+            embed = discord.Embed(title=titles[idx], description=durations[idx], color=0x38eb71)
+            embed.set_author(name="Genshin Impact Fandom", url="https://genshin-impact.fandom.com/",
+                             icon_url="https://img.utdstc.com/icon/9a6/3d0/9a63d0817ee337a44e148854654a88fa144cfc6f2c31bc85f860f4a42c92019f:200")
+            embed.add_field(name="Event Type", value=event_type[idx], inline=True)
+            embed.set_image(url=imgs[idx])
+            await ctx.send(embed=embed)
 
 @bot.command()
 async def nonton(ctx,*tags):
