@@ -2,6 +2,7 @@ import os,discord,json,random,requests,urllib.request
 from bs4 import BeautifulSoup
 from discord.ext import commands
 from tabulate import tabulate
+from eventnews import event_news
 
 #tkn = os.environ['tok']
 
@@ -370,6 +371,34 @@ async def info(ctx,char):
         await ctx.send(embed=embed)
     else:
         print("Karakter Tidak Ditemukan, Periksa kembali nama karakter yang di input")
+
+@bot.command()
+async def event():
+    titles, imgs, durations, event_type = event_news(0)
+    if len(titles) == 0:
+        print("Data tidak tersedia, atau terjadi bug pada bot, harap hubungi developer")
+    else:
+        for idx in range(len(titles)):
+            embed = discord.Embed(title=titles[idx], description=durations[idx], color=0x38eb71)
+            embed.set_author(name="Genshin Impact Fandom", url="https://genshin-impact.fandom.com/",
+                             icon_url="https://img.utdstc.com/icon/9a6/3d0/9a63d0817ee337a44e148854654a88fa144cfc6f2c31bc85f860f4a42c92019f:200")
+            embed.add_field(name="Event Type", value=event_type[idx], inline=True)
+            embed.set_image(url=imgs[idx])
+            await ctx.send(embed=embed)
+
+@bot.command()
+async def upcoming_event():
+    titles, imgs, durations, event_type = event_news(1)
+    if len(titles) == 1:
+        print("Data tidak tersedia, atau terjadi bug pada bot, harap hubungi developer")
+    else :
+        for idx in range(len(titles)):
+            embed = discord.Embed(title=titles[idx], description=durations[idx], color=0x38eb71)
+            embed.set_author(name="Genshin Impact Fandom", url="https://genshin-impact.fandom.com/",
+                             icon_url="https://img.utdstc.com/icon/9a6/3d0/9a63d0817ee337a44e148854654a88fa144cfc6f2c31bc85f860f4a42c92019f:200")
+            embed.add_field(name="Event Type", value=event_type[idx], inline=True)
+            embed.set_image(url=imgs[idx])
+            await ctx.send(embed=embed)
 
 @bot.command()
 async def nonton(ctx,*tags):
