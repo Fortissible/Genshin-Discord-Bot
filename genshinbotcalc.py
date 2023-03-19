@@ -391,7 +391,7 @@ async def event(ctx):
 @bot.command()
 async def upcoming_event(ctx):
     titles, imgs, durations, event_type = event_news(1)
-    if len(titles) == 1:
+    if len(titles) == 0:
         print("Data tidak tersedia, atau terjadi bug pada bot, harap hubungi developer")
     else :
         for idx in range(len(titles)):
