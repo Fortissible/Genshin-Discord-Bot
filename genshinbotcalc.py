@@ -3,7 +3,10 @@ from bs4 import BeautifulSoup
 from discord.ext import commands
 from tabulate import tabulate
 from eventnews import event_news
-from utils import data,get_gelImage
+from utils import data
+from get_gel_img import get_gelImage
+from weapondesc import weapon_desc
+from ytsearch import youtube_video
 
 # tkn = os.environ['tok']
 intents = discord.Intents.all()
@@ -297,109 +300,45 @@ async def upcoming_event(ctx):
 
 @bot.command()
 async def nonton(ctx, *tags):
-    list_hal = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15']
+
     tags = list(str(tags))
-    print(tags)
-    hal = random.randint(1, 15)
     search = ""
-    # if tags[0] in list_hal:
-    # hal = int(tags[0])
-    # tags = tags.remove(tags[0])
     for i in range(len(tags)):
         search += tags[i] + "+"
-    print(search)
-    page = requests.get(f'https://www.google.com/search?q=youtube+{search}')
-    soup = BeautifulSoup(page.text, 'html.parser')
-    counter = 0
-    format = 47
-    if page.status_code == 200:
-        str_soup = str(soup)
-        list_link = []
 
-        link = ""
-        parser = str_soup.find("https://www.youtube.com/watch")
-        link += str_soup[parser:parser + 47]
-        link = link.replace("%3Fv%3D", "?v=")
-        list_link.append(link)
+    list_link = youtube_video(search)
 
-        while (counter < 15 and str_soup[parser + format + 1:].find("https://www.youtube.com/watch") + parser != -1):
-            link = ""
-            parser = str_soup[parser + format + 1:].find("https://www.youtube.com/watch") + parser
-            link += str_soup[parser + format + 1:parser + format + 1 + 47]
-            link = link.replace("%3Fv%3D", "?v=")
-            list_link.append(link)
-            format += 47
-            counter += 1
-    await ctx.send(list_link[hal])
+    if list_link is not None :
+        hal = random.randint(1, 15)
+        await ctx.send(list_link[hal])
+    else:
+        print("Data tidak tersedia, atau terjadi bug pada bot, harap hubungi developer")
 
 
 @bot.command()
 async def wp(ctx, weap):
-    weaps = weap.replace(' ', '_')
-    page = f'https://genshin-impact.fandom.com/wiki/{weaps}'
-    response = requests.get(page)
-    counter = 0
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, 'html.parser')
-        a = soup.find('aside')
+    weapon = weapon_desc(weap)
+    if weapon is not None:
+        wpc = data().weapon_type_color
+        logo = data().weapon_type_imgs
 
-        fg = a.find('figure')
-        img = fg.find('a', {'class': 'image image-thumbnail'})
-        gmbr = img.find('img')
-        img_link = gmbr['src']
-        print(img_link)
-        name = weap
-
-        div1 = a.find('div', {'data-source': 'type'})
-        type = div1.find('a')
-        print(type.text)
-
-        div2 = a.find('div', {'data-source': 'rarity'})
-        rar = div2.find('img')
-        rarity = rar['title']
-        print(rarity)
-
-        div3 = a.find('section', {'class': 'pi-item pi-group pi-border-color'})
-        st = div3.find('table')
-        tab = st.find('tbody')
-        stat = tab.find_all('td')
-        print(stat[0].text)
-        print(stat[1].text)
-        print(stat[2].text)
-
-        div4 = a.find('section', {'class': 'pi-item pi-panel pi-border-color wds-tabber'})
-        desk = div4.find('table')
-
-        head = desk.find('thead')
-        th = head.find('th')
-        header = th.text
-
-        body = desk.find('tbody')
-        td = body.find('td')
-        print(td.text)
-
-        wpc = {"Sword": 0xe84833, "Claymore": 0x2372fa, "Polearm": 0xebbb38, "Catalyst": 0xa838e8, "Bow": 0x38eb71}
-        logo = {
-            "Sword": "https://static.wikia.nocookie.net/gensin-impact/images/8/81/Icon_Sword.png/revision/latest/scale-to-width-down/128?cb=20210413210800",
-            "Claymore": "https://static.wikia.nocookie.net/gensin-impact/images/6/66/Icon_Claymore.png/revision/latest?cb=20210413210803",
-            "Polearm": "https://static.wikia.nocookie.net/gensin-impact/images/6/6a/Icon_Polearm.png/revision/latest?cb=20210413210804",
-            "Catalyst": "https://static.wikia.nocookie.net/gensin-impact/images/2/27/Icon_Catalyst.png/revision/latest?cb=20210413210802",
-            "Bow": "https://static.wikia.nocookie.net/gensin-impact/images/8/81/Icon_Bow.png/revision/latest?cb=20210413210801"}
-
-        embed = discord.Embed(title=name, color=wpc[f'{type.text}'])
+        embed = discord.Embed(title=weapon.weapon_name, color=wpc[f'{weapon.weapon_type}'])
         embed.set_author(name="Genshin Impact Fandom", url="https://genshin-impact.fandom.com/",
                          icon_url="https://img.utdstc.com/icon/9a6/3d0/9a63d0817ee337a44e148854654a88fa144cfc6f2c31bc85f860f4a42c92019f:200")
-        embed.add_field(name="Weapon Type", value=type.text, inline=True)
-        embed.add_field(name="Rarity", value=rarity, inline=True)
-        embed.add_field(name="Base ATK lvl1", value=stat[0].text, inline=False)
-        embed.add_field(name="Sec Stat Type", value=stat[1].text, inline=True)
-        embed.add_field(name="Sec Stat lvl1", value=stat[2].text, inline=True)
-        embed.add_field(name=th.text, value=td.text, inline=False)
+        embed.add_field(name="Weapon Type", value=weapon.weapon_type, inline=True)
+        embed.add_field(name="Rarity", value=weapon.weapon_rarity, inline=True)
+        embed.add_field(name="Base ATK lvl1", value=weapon.weapon_base_atk, inline=False)
+        embed.add_field(name="Sec Stat Type", value=weapon.weapon_stat_type, inline=True)
+        embed.add_field(name="Sec Stat lvl1", value=weapon.weapon_stat_base, inline=True)
+        embed.add_field(name=weapon.weapon_desc_title, value=weapon.weapon_desc, inline=False)
         # embed.add_field(name="Server ID", value=f"{ctx.guild.id}")
         # embed.set_thumbnail(url=f"{ctx.guild.icon}")
-        embed.set_thumbnail(url=logo[f'{type.text}'])
-        embed.set_image(url=f"{img_link}")
+        embed.set_thumbnail(url=logo[f'{weapon.weapon_type}'])
+        embed.set_image(url=f"{weapon.weapon_img_link}")
+
         await ctx.send(embed=embed)
+    else:
+        print("Data tidak tersedia, atau terjadi bug pada bot, harap hubungi developer")
 
 
 bot.run("InsertTokenHere")
