@@ -1,12 +1,13 @@
-import os, discord, json, random, requests, urllib.request
+import discord, random, requests
 from bs4 import BeautifulSoup
 from discord.ext import commands
 from tabulate import tabulate
-from eventnews import event_news
-from utils import data
-from get_gel_img import get_gelImage
-from weapondesc import weapon_desc
-from ytsearch import youtube_video
+from command.eventnews import event_news
+from command.weapondesc import weapon_desc
+from command.ytsearch import youtube_video
+
+from data.strings_data import data
+from utils.get_gelImage import get_gelImage
 
 # tkn = os.environ['tok']
 intents = discord.Intents.all()
@@ -22,7 +23,7 @@ async def on_ready():
 
 @bot.command()
 async def ping(ctx):
-    await ctx.send(f'Bacot! [{round(bot.latency * 1000)}ms]')
+    await ctx.send(f'Hello Traveler! [{round(bot.latency * 1000)}ms]')
 
 
 @bot.command()
@@ -76,14 +77,16 @@ async def calcprim(ctx, hr, evnt, blessing):
 @bot.command()
 async def pics(ctx, *tags):
     """Calls get_gelImage() with tags specified by user, then sends an image."""
+
+    img = get_gelImage(tags)
+
     if "rq" in tags or "re" in tags:
         if ctx.channel.is_nsfw():  # check if channel is suitable for given rating
-            img = get_gelImage(tags)
             return await ctx.send(img)
         else:
             message = "For rating questionable or explicit NSFW channel is required!"
             return await ctx.send(message)
-    img = get_gelImage(tags)
+
     await ctx.send(img)
 
 
@@ -115,6 +118,10 @@ async def charlist(ctx, elm):
             "```yaml\n\t\t-------- All Character Genshin --------\n\nPyro Nation :\n+ Amber ★★★★\n+ Bennet ★★★★ \n+ Xiangling ★★★★\n+ Xinyan ★★★★\n+ yanfei ★★★★\n+ Diluc ★★★★★\n+ Klee ★★★★★\n+ Hu Tao ★★★★★\n+ Yoimiya ★★★★★\nElectro Nation :\n+ Lisa ★★★★\n+ Fischl ★★★★ \n+ Razor ★★★★\n+ Beidou ★★★★\n+ Kujou Sara ★★★★\n+ Keqing ★★★★★\n+ Raiden Shogun(Baal) ★★★★★\nAnemo Nation :\n+ Sucrose ★★★★\n+ Sayu ★★★★ \n+ Jean ★★★★★\n+ venti ★★★★★\n+ Xiao ★★★★★\n+ Kaedehara Kazuha ★★★★★\nCryo Nation :\n+ Kaeya ★★★★\n+ Chongyun ★★★★\n+ Diona ★★★★\n+ Rosaria ★★★★\n+ Qiqi ★★★★★\n+ Ganyu ★★★★★\n+ Kamisato Ayaka ★★★★★\n+ Aloy ★★★★★\nGeo Nation :\n+ Noelle ★★★★\n+ Ningguang ★★★★ \n+ Gorou ★★★★\n+ Zhongli ★★★★★\n+ Albedo ★★★★★```")
     else:
         await ctx.send("```yaml\nElemental Nation Tidak Ditemukan atau huruf tidak tepat (jangan gunakan Caps)```")
+
+#--------------------------------------------------------------------------------------------------------------------
+#-----------------------------------HARUS DI MAINTENANCE DLU, MASIH BUG----------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------
 
 
 @bot.command()
@@ -202,7 +209,7 @@ async def info(ctx, char):
         bottom = height - 350
         im1 = im.crop((left, top, right, bottom))
         #im1.show()
-        """
+    """
     chars = char.replace(' ', '_')
     page = f'https://genshin-impact.fandom.com/wiki/{char}'
     response = requests.get(page)
@@ -267,6 +274,9 @@ async def info(ctx, char):
     else:
         print("Karakter Tidak Ditemukan, Periksa kembali nama karakter yang di input")
 
+#--------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------
 
 @bot.command()
 async def event(ctx):

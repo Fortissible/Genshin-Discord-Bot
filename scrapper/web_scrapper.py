@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from classdata import *
+from data.class_data import *
 
 
 def event_news_scrap(type, response):
@@ -32,52 +32,21 @@ def event_news_scrap(type, response):
 
 
 def weapon_info_scrap(response):
-    soup = BeautifulSoup(response.text, 'html.parser')
     weapon_info = weapon()
-    a = soup.find('aside')
 
-    fg = a.find('figure')
-    img = fg.find('a', {'class': 'image image-thumbnail'})
-    gmbr = img.find('img')
-    img_link = gmbr['src']
-    print(img_link)
-    weapon_info.weapon_name = weap
+    soup = BeautifulSoup(response.text, 'html.parser')
+    weapon_info_card = soup.findAll('aside')[0]
 
-    div1 = a.find('div', {'data-source': 'type'})
-    type = div1.find('a')
-    print(type.text)
-    weapon_info.weapon_type = type.text
-
-    div2 = a.find('div', {'data-source': 'rarity'})
-    rar = div2.find('img')
-    rarity = rar['title']
-    print(rarity)
-    weapon_info.weapon_rarity = rarity
-
-    div3 = a.find('section', {'class': 'pi-item pi-group pi-border-color'})
-    st = div3.find('table')
-    tab = st.find('tbody')
-    stat = tab.find_all('td')
-    print(stat[0].text)
-    print(stat[1].text)
-    print(stat[2].text)
-    weapon_info.weapon_base_atk = stat[0].text
-    weapon_info.weapon_stat_type = stat[1].text
-    weapon_info.weapon_stat_base = stat[2].text
-
-    div4 = a.find('section', {'class': 'pi-item pi-panel pi-border-color wds-tabber'})
-    desk = div4.find('table')
-
-    head = desk.find('thead')
-    th = head.find('th')
-
-    weapon_info.weapon_desc_title = th.text
-
-    body = desk.find('tbody')
-    td = body.find('td')
-    print(td.text)
-
-    weapon_info.weapon_desc = td.text
+    weapon_info.weapon_name = weapon_info_card.find('h2', {'data-source': 'title'}).text
+    weapon_info.weapon_type = weapon_info_card.findAll('section')[0].findAll('div')[2].find('a')['title']
+    weapon_info.weapon_rarity = weapon_info_card.findAll('section')[0].findAll('div')[2].findAll('div')[2].find('img')[
+        'title']
+    weapon_info.weapon_base_atk = weapon_info_card.findAll('section')[2].findAll('div')[0].text
+    weapon_info.weapon_stat_type = weapon_info_card.findAll('section')[2].findAll('div')[1].text
+    weapon_info.weapon_stat_base = weapon_info_card.findAll('section')[2].findAll('div')[2].text
+    weapon_info.weapon_desc_title = weapon_info_card.findAll('section')[9].find('th').text
+    weapon_info.weapon_desc = weapon_info_card.findAll('section')[9].find('td').text
+    weapon_info.weapon_img_link = weapon_info_card.findAll('div')[0].find('a')['href']
 
     return weapon_info
 
@@ -96,7 +65,7 @@ def youtube_video_scrap(response):
     link = link.replace("%3Fv%3D", "?v=")
     list_link.append(link)
 
-    while (counter < 15 and str_soup[parser + format + 1:].find("https://www.youtube.com/watch") + parser != -1):
+    while counter < 15 and str_soup[parser + format + 1:].find("https://www.youtube.com/watch") + parser != -1:
         link = ""
         parser = str_soup[parser + format + 1:].find("https://www.youtube.com/watch") + parser
         link += str_soup[parser + format + 1:parser + format + 1 + 47]

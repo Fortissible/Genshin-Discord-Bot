@@ -1,5 +1,5 @@
-from web_scrapper import event_news_scrap
-from utils import url_request
+from scrapper.web_scrapper import event_news_scrap
+from utils.url_request import url_request
 
 def event_news(type=0):
     page = f'https://genshin-impact.fandom.com/wiki/Event'

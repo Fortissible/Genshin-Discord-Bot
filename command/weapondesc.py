@@ -1,6 +1,5 @@
-from utils import url_request
-from web_scrapper import weapon_info_scrap
-
+from scrapper.web_scrapper import weapon_info_scrap
+from utils.url_request import url_request
 
 def weapon_desc(weap_name):
     weaps = weap_name.replace(' ', '_')

@@ -1,6 +1,6 @@
+from utils.url_request import url_request
 import json
 import random
-import requests
 
 def get_gelImage(tags):
     """Returns pictures from Gelbooru with given tags."""
@@ -39,7 +39,7 @@ def get_gelImage(tags):
 
     api_url = f"https://danbooru.donmai.us/posts.json?page={halaman}&tags={rating}+{formatted_tags}"
 
-    response = requests.get(api_url)
+    response = url_request(api_url)
 
     # parsing json
     json_api_url = json.loads(response.text)

@@ -1,5 +1,3 @@
-import requests
-
 class data:
     def __init__(self):
         self.notes = "\n**Command prefix [~]**" \
@@ -94,8 +92,3 @@ class data:
             "Polearm": "https://static.wikia.nocookie.net/gensin-impact/images/6/6a/Icon_Polearm.png/revision/latest?cb=20210413210804",
             "Catalyst": "https://static.wikia.nocookie.net/gensin-impact/images/2/27/Icon_Catalyst.png/revision/latest?cb=20210413210802",
             "Bow": "https://static.wikia.nocookie.net/gensin-impact/images/8/81/Icon_Bow.png/revision/latest?cb=20210413210801"}
-
-
-def url_request(url):
-    response = requests.get(url)
-    return response
