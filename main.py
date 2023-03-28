@@ -5,6 +5,7 @@ from tabulate import tabulate
 from command.eventnews import event_news
 from command.weapondesc import weapon_desc
 from command.ytsearch import youtube_video
+from command.charinfo import char_info
 
 from data.strings_data import data
 from utils.get_gelImage import get_gelImage
@@ -198,7 +199,7 @@ async def talent(ctx, char):
 
 
 @bot.command()
-async def info(ctx, char):
+async def info(ctx, char_query):
     """
         urllib.request.urlretrieve('https://static.wikia.nocookie.net/gensin-impact/images/8/8d/Character_Ganyu_Card.png/revision/latest?cb=20210106062018',"ganyu.png")
         im = Image.open(r"ganyu.png")
@@ -210,65 +211,23 @@ async def info(ctx, char):
         im1 = im.crop((left, top, right, bottom))
         #im1.show()
     """
-    chars = char.replace(' ', '_')
-    page = f'https://genshin-impact.fandom.com/wiki/{char}'
-    response = requests.get(page)
-    counter = 0
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, 'html.parser')
-        side_tab = soup.find("aside")
-        char_name = side_tab.find("h2", {'data-source': "name"})
-        char_title = side_tab.find("h2", {'data-item-name': "secondary_title"})
-        first_detail = side_tab.find("tbody")
-        rarity = first_detail.find('img')
-        ct1 = 0
-        char_weap = ""
-        char_elem = ""
-        for a_head in first_detail.find_all('a'):
-            if str(a_head.text) != "":
-                if ct1 == 0:
-                    char_weap = a_head.text
-                else:
-                    char_elem = a_head.text
-                ct1 += 1
+    char = char_info(char_query)
+    if char is not None:
 
-        img_tab = side_tab.find("div", {'class': 'wds-tab__content wds-is-current'})
-        char_img = img_tab.find('a')
-        second_detail = side_tab.find_all("div", {'class': 'wds-tab__content wds-is-current'})
-        for data in second_detail:
-            counter += 1
-            if counter == 2:
-                second_detail = data
-                break
-        char_sex = data.find('div', {'data-source': 'sex'})
-        char_bd = data.find('div', {'data-source': 'birthday'})
-        char_nation = data.find('div', {'data-source': 'region'})
-        affs = data.find('div', {'data-source': 'affiliation'})
-        char_aff = ""
-        ct = 0
-        limits = len(affs.find_all('a'))
-        for affiliation in affs.find_all('a'):
-            ct += 1
-            if ct < limits:
-                char_aff += affiliation.text + ", "
-            else:
-                char_aff += affiliation.text
         colors = data.elemental_color
         ele_png = data.elemental_images
-        embed = discord.Embed(title=char_name.text, description=char_title.text, color=colors[f'{char_elem}'])
+        embed = discord.Embed(title=char.char_name, description=char.char_title, color=colors[char.char_element])
         embed.set_author(name="Genshin Impact Fandom", url="https://genshin-impact.fandom.com/",
                          icon_url="https://img.utdstc.com/icon/9a6/3d0/9a63d0817ee337a44e148854654a88fa144cfc6f2c31bc85f860f4a42c92019f:200")
-        embed.add_field(name="Rarity", value=rarity['title'], inline=True)
-        embed.add_field(name="Weapon", value=char_weap, inline=True)
-        embed.add_field(name="Element", value=char_elem, inline=True)
-        embed.add_field(name="Nation", value=char_nation.find('div').text, inline=True)
-        embed.add_field(name="Sex", value=char_sex.find('a').text, inline=True)
-        embed.add_field(name="Birthday", value=char_bd.find('div').text, inline=True)
-        embed.add_field(name="Affiliation", value=char_aff, inline=False)
-        # embed.add_field(name="Server ID", value=f"{ctx.guild.id}")
-        # embed.set_thumbnail(url=f"{ctx.guild.icon}")
-        embed.set_thumbnail(url=ele_png[f'{char_elem}'])
-        embed.set_image(url=f"{char_img['href']}")
+        embed.add_field(name="Rarity", value=char.char_rarity, inline=True)
+        embed.add_field(name="Weapon", value=char.char_weap, inline=True)
+        embed.add_field(name="Element", value=char.char_element, inline=True)
+        embed.add_field(name="Nation", value=char.char_nation, inline=True)
+        embed.add_field(name="Sex", value=char.char_sex, inline=True)
+        embed.add_field(name="Birthday", value=char.char_bday, inline=True)
+        embed.add_field(name="Affiliation", value=char.char_affiliation, inline=False)
+        embed.set_thumbnail(url=ele_png[char.char_element])
+        embed.set_image(url=char.char_img)
         embed.set_footer(text="~~~Ganyu yang paling cantik euy~~~")
         await ctx.send(embed=embed)
     else:

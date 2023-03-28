@@ -69,6 +69,18 @@ class data:
                             "Resolve": "Rsolve", "Restoration": "Rstore", "Titanbreaker": "Titan Breaker",
                             "Stormcluster": "Storm Cluster", "Chillwater": "Chill Water",
                             "Bomblets": "Bomb-lets", "Rushing": "Rush"}
+        self.char_dict = {"Arataki": "Arataki_Itto", "Itto":"Arataki_Itto",
+                          "Benet":"Bennett", "Benett":"Bennett", "Bennet":"Bennett",
+                          "Candice":"Candace", "Colei":"Collei", "Kaedehara":"Kaedehara_Kazuha",
+                          "Kazuha":"Kaedehara_Kazuha", "Ayaka":"Kamisato_Ayaka", "Ayato":"Kamisato_Ayato",
+                          "Kujou":"Kujou_Sara", "Sara":"Kujou_Sara", "Shinobu":"Kuki_Shinobu", "Kuki":"Kuki_Shinobu",
+                          "Leyla":"Layla", "Ninguang":"Ningguang", "Sangonomiya":"Sangonomiya_Kokomi",
+                          "Kokomi":"Sangonomiya_Kokomi", "Heizou":"Shikanoin_Heizou",
+                          "Heizo":"Shikanoin_Heizou","Shikanoin":"Shikanoin_Heizou",
+                          "Childe":"Tartaglia", "Tignari":"Tighnari", "Tihgnari":"Tighnari",
+                          "Yae":"Yae_Miko", "Miko":"Yae_Miko", "Yunjin":"Yun_Jin", "Hutao":"Hu_Tao",
+                          "Goro":"Gorou", "Fishl":"Fischl"}
+
         self.char_skills = {
             1: "Basic Attack",
             2: "E Skill",
