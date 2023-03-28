@@ -127,7 +127,7 @@ async def charlist(ctx, elm):
 
 @bot.command()
 async def talent(ctx, char):
-    strings = data.abbrevation()
+    strings = data().abbrevation()
     i = 0
     type = data.char_skills
     page = f"https://genshin.honeyhunterworld.com/db/char/{char}"
@@ -197,6 +197,9 @@ async def talent(ctx, char):
         x = (tabulate(datas, header))
         await ctx.send("> **{} {}**\n```yaml\n{}```".format(char, type[i], x))
 
+#--------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------
 
 @bot.command()
 async def info(ctx, char_query):
@@ -232,10 +235,6 @@ async def info(ctx, char_query):
         await ctx.send(embed=embed)
     else:
         print("Karakter Tidak Ditemukan, Periksa kembali nama karakter yang di input")
-
-#--------------------------------------------------------------------------------------------------------------------
-#--------------------------------------------------------------------------------------------------------------------
-#--------------------------------------------------------------------------------------------------------------------
 
 @bot.command()
 async def event(ctx):
