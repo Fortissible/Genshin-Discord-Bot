@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from data.class_data import *
+from data.strings_data import *
 
 
 def event_news_scrap(type, response):
@@ -75,3 +76,27 @@ def youtube_video_scrap(response):
         counter += 1
 
     return list_link
+
+
+def char_information_scrap(response):
+    char = character()
+
+    soup = BeautifulSoup(response.text, 'html.parser')
+    card_data = soup.findAll('aside')[0]
+
+    char.char_name = card_data.findAll('h2')[0].text
+    char.char_title = card_data.findAll('h2')[1].text
+    char.char_img = card_data.find('a')["href"]
+    char_type_section = card_data.findAll('section')[0].findAll('td')
+    char_desc_section = card_data.findAll('section')[1].findAll('div')
+    char.char_rarity = char_type_section[0].find('img')['title']
+    char.char_weap = char_type_section[1].text
+    char.char_element = char_type_section[2].text
+    char.char_nation = char_desc_section[11].text
+    char.char_sex = char_desc_section[6].text
+    char.char_bday = char_desc_section[7].text
+    char.char_affiliation = ""
+    for i in range(0, len(char_desc_section[13].findAll('a')) - 1):
+        char.char_affiliation += char_desc_section[13].findAll('a')[i].text + "; "
+
+    return char
