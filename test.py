@@ -1,35 +1,39 @@
 import requests
+import numpy as np
+import pandas as pd
 from bs4 import BeautifulSoup
 from data.class_data import character
 from data.strings_data import data
+from tabulate import tabulate
 
 if __name__ == "__main__":
-    char_query = input("input nama karakter\n")
-    char = character()
-    char_name = ""
-    if char_query in data().char_dict:
-        char_name = data().char_dict[char_query.capitalize()]
-    else:
-        char_name = char_query
-    page = f'https://genshin-impact.fandom.com/wiki/{char_name}'
+    page = f'https://genshin-impact.fandom.com/wiki/Character'
     response = requests.get(page)
     soup = BeautifulSoup(response.text, 'html.parser')
-    card_data = soup.findAll('aside')[0]
+    char_list_info = []
 
-    char.char_name = card_data.findAll('h2')[0].text
-    char.char_title = card_data.findAll('h2')[1].text
-    char.char_img = card_data.find('a')["href"]
-    char_type_section = card_data.findAll('section')[0].findAll('td')
-    char_desc_section = card_data.findAll('section')[1].findAll('div')
-    char.char_rarity = char_type_section[0].find('img')['title']
-    char.char_weap = char_type_section[1].text
-    char.char_element = char_type_section[2].text
-    char.char_nation = char_desc_section[11].text
-    char.char_sex = char_desc_section[6].text
-    char.char_bday = char_desc_section[7].text
-    char.char_affiliation = ""
-    for i in range(0, len(char_desc_section[13].findAll('a')) - 1):
-        char.char_affiliation += char_desc_section[13].findAll('a')[i].text + "; "
+    for i in range(0,len(soup.findAll('table')[1].findAll('td')),7):
+        if soup.findAll('table')[1].findAll('td')[i+1].find('a').text == "Traveler" :
+            char_list_info.append([soup.findAll('table')[1].findAll('td')[i + 1].find('a').text,
+                                   soup.findAll('table')[1].findAll('td')[i + 2].find('img')['title'],
+                                   "None",
+                                   soup.findAll('table')[1].findAll('td')[i + 4].find('a')['title'],
+                                   "OuterSpace"])
+        elif soup.findAll('table')[1].findAll('td')[i+1].find('a').text == "Aloy" :
+            char_list_info.append([soup.findAll('table')[1].findAll('td')[i + 1].find('a').text,
+                                   soup.findAll('table')[1].findAll('td')[i + 2].find('img')['title'],
+                                   soup.findAll('table')[1].findAll('td')[i + 3].find('a')['title'],
+                                   soup.findAll('table')[1].findAll('td')[i + 4].find('a')['title'],
+                                   "HorizonZeroDawn"])
+        else :
+            char_list_info.append([soup.findAll('table')[1].findAll('td')[i + 1].find('a').text,
+                                   soup.findAll('table')[1].findAll('td')[i + 2].find('img')['title'],
+                                   soup.findAll('table')[1].findAll('td')[i + 3].find('a')['title'],
+                                   soup.findAll('table')[1].findAll('td')[i + 4].find('a')['title'],
+                                   soup.findAll('table')[1].findAll('td')[i+5].find('a')['title']])
+    char_df = pd.DataFrame(np.array(char_list_info), columns=['Name', 'Rarity', 'Element', 'Weapon', 'Region'])
+    chars_table = tabulate(char_df,headers='keys',tablefmt='psql')
+    print(chars_table)
 
     # table_rows = soup.find('div',{'class':'talent-table-container'}).findAll('tr')
     # for idx,val in enumerate(table_rows):
