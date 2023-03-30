@@ -1,6 +1,9 @@
 from bs4 import BeautifulSoup
 from data.class_data import *
 from data.strings_data import *
+import numpy as np
+import pandas as pd
+from tabulate import tabulate
 
 
 def event_news_scrap(type, response):
@@ -100,3 +103,31 @@ def char_information_scrap(response):
         char.char_affiliation += char_desc_section[13].findAll('a')[i].text + "; "
 
     return char
+
+
+def characters_scrap(response, elm):
+    soup = BeautifulSoup(response.text, 'html.parser')
+    char_list_info = []
+
+    for i in range(0, len(soup.findAll('table')[1].findAll('td')), 7):
+        if soup.findAll('table')[1].findAll('td')[i + 1].find('a').text == "Traveler":
+            char_list_info.append([soup.findAll('table')[1].findAll('td')[i + 1].find('a').text,
+                                   soup.findAll('table')[1].findAll('td')[i + 2].find('img')['title'],
+                                   "None",
+                                   soup.findAll('table')[1].findAll('td')[i + 4].find('a')['title'],
+                                   "OuterSpace"])
+        elif soup.findAll('table')[1].findAll('td')[i + 1].find('a').text == "Aloy":
+            char_list_info.append([soup.findAll('table')[1].findAll('td')[i + 1].find('a').text,
+                                   soup.findAll('table')[1].findAll('td')[i + 2].find('img')['title'],
+                                   soup.findAll('table')[1].findAll('td')[i + 3].find('a')['title'],
+                                   soup.findAll('table')[1].findAll('td')[i + 4].find('a')['title'],
+                                   "HorizonZeroDawn"])
+        else:
+            char_list_info.append([soup.findAll('table')[1].findAll('td')[i + 1].find('a').text,
+                                   soup.findAll('table')[1].findAll('td')[i + 2].find('img')['title'],
+                                   soup.findAll('table')[1].findAll('td')[i + 3].find('a')['title'],
+                                   soup.findAll('table')[1].findAll('td')[i + 4].find('a')['title'],
+                                   soup.findAll('table')[1].findAll('td')[i + 5].find('a')['title']])
+    char_df = pd.DataFrame(np.array(char_list_info), columns=['Name', 'Rarity', 'Element', 'Weapon', 'Region'])
+    chars_table = tabulate(char_df, headers='keys', tablefmt='psql')
+    return chars_table
